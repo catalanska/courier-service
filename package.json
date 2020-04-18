@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest --passWithNoTests"
+    "build": "babel src --out-dir dist",
+    "test": "NODE_ENV=testing jest --forceExit --detectOpenHandles --silent --passWithNoTests",
+    "restart": "rimraf dist && npm run build && npm run start",
+    "start": "node dist/index.js"
   },
   "author": "Javier Jiménez",
   "license": "ISC",
@@ -12,12 +15,20 @@
     "eslint": "6.8.0",
     "husky": "4.2.5",
     "jest": "25.3.0",
-    "prettier": "2.0.4"
+    "prettier": "2.0.4",
+    "supertest": "4.0.2"
   },
   "husky": {
     "hooks": {
       "pre-commit": "npm test",
       "pre-push": "npm test"
     }
+  },
+  "dependencies": {
+    "@babel/cli": "7.8.4",
+    "@babel/core": "7.9.0",
+    "@babel/preset-env": "7.9.5",
+    "nodemon": "2.0.3",
+    "rimraf": "3.0.2"
   }
 }
