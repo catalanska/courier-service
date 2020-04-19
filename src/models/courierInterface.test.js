@@ -1,4 +1,5 @@
-import Courier from './courierInterface';
+import { Error as MongooseError } from 'mongoose';
+import Courier, { PackageExistingError, PackageNotInCourierError } from './courierInterface';
 
 const validCourierParams = {
   courierId: 'foo',
@@ -15,6 +16,14 @@ const expectCourierObject = () => {
     maxCapacity: maxCapacity,
     currentCapacity: expect.any(Number),
     packages: expect.any(Array),
+  });
+};
+
+const expectPackageObject = () => {
+  return expect.objectContaining({
+    _id: expect.anything(),
+    packageId: expect.any(String),
+    volume: expect.any(Number),
   });
 };
 
@@ -85,64 +94,84 @@ describe('Add package to a courier', () => {
   });
 
   it('stores the new package to the packages list', async (done) => {
-    const { courierId, currentCapacity } = courier;
+    const { currentCapacity } = courier;
     const newPackage = {
       packageId: 'bar',
       volume: 100,
     };
 
-    const updatedCourier = await Courier.addPackage({ courierId, newPackage });
+    const updatedCourier = await Courier.addPackage({ courier, newPackage });
 
     expect(updatedCourier).toEqual(expectCourierObject());
     expect(updatedCourier.currentCapacity).toEqual(currentCapacity - 100);
-    expect(updatedCourier.packages).toEqual(expect.arrayContaining([newPackage]));
+    expect(updatedCourier.packages).toEqual(expect.arrayContaining([expectPackageObject()]));
 
     done();
   });
 
-  it('throws an Error if the courier cannot carry the new package', async (done) => {
+  it('throws an Error if the package is already in the courier', async (done) => {
     const { courierId } = courier;
+    const newPackage = {
+      packageId: 'bar',
+      volume: 100,
+    };
+
+    try {
+      await Courier.addPackage({ courier, newPackage });
+      await Courier.addPackage({ courier, newPackage });
+    } catch (error) {
+      expect(error instanceof PackageExistingError).toBeTruthy();
+      done();
+    }
+  });
+
+  it('throws an Error if the courier cannot carry the new package', async (done) => {
     const newPackage = {
       packageId: 'bar',
       volume: 500000,
     };
 
-    await expect(Courier.addPackage({ courierId, newPackage })).rejects.toThrow();
-
-    done();
+    try {
+      await Courier.addPackage({ courier, newPackage });
+    } catch (error) {
+      expect(error instanceof MongooseError).toBeTruthy();
+      done();
+    }
   });
 });
 
 describe('Remove package from a courier', () => {
-  let courierId;
+  let courier;
   let initialCapacity;
   let packageId = 'bar';
   let initialPackage;
 
   beforeEach(async () => {
-    const courier = await Courier.create(validCourierParams);
-    courierId = courier.courierId;
+    courier = await Courier.create(validCourierParams);
     initialPackage = {
       packageId,
       volume: 100,
     };
-    const updatedCourier = await Courier.addPackage({ courierId, newPackage: initialPackage });
+    const updatedCourier = await Courier.addPackage({ courier, newPackage: initialPackage });
     initialCapacity = updatedCourier.currentCapacity;
   });
 
   it('removes the package from the packages list', async (done) => {
-    const updatedCourier = await Courier.removePackage({ courierId, packageId });
+    const updatedCourier = await Courier.removePackage({ courier, packageId });
 
     expect(updatedCourier).toEqual(expectCourierObject());
     expect(updatedCourier.currentCapacity).toEqual(initialCapacity + 100);
-    expect(updatedCourier.packages).toEqual(expect.not.arrayContaining([initialPackage]));
+    expect(updatedCourier.packages).toEqual(expect.not.arrayContaining([expectPackageObject()]));
 
     done();
   });
 
   it('throws an Error if the courier does not carry the given package', async (done) => {
-    await expect(Courier.removePackage({ courierId, packageId: 'baz' })).rejects.toThrow();
-
-    done();
+    try {
+      await Courier.removePackage({ courier, packageId: 'baz' });
+    } catch (error) {
+      expect(error instanceof PackageNotInCourierError).toBeTruthy();
+      done();
+    }
   });
 });

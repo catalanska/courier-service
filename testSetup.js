@@ -33,7 +33,7 @@ async function dropAllCollections() {
 
 // Connect to Mongoose
 beforeAll(async () => {
-  await mongoose.connect(url, { useNewUrlParser: true });
+  await mongoose.connect(url, { useUnifiedTopology: true, useNewUrlParser: true });
 });
 
 // Cleans up database between each test

@@ -1,5 +1,6 @@
 import request from 'supertest';
 import server from './index';
+import Courier from '../models/courierInterface';
 
 describe('Available endpoints', () => {
   it('should return 404 when endpoint does not exist', async (done) => {
@@ -40,12 +41,32 @@ describe('POST /couriers', () => {
 });
 
 describe('GET /couriers', () => {
+  let bigCourier = {
+    courierId: 'foo',
+    maxCapacity: 5000,
+  };
+  let smallCourier = {
+    courierId: 'bar',
+    maxCapacity: 700,
+  };
+
+  beforeEach(async () => {
+    await Courier.create(bigCourier);
+    await Courier.create(smallCourier);
+  });
+
   it('should return 200 with the list of couriers', async (done) => {
-    await request(server)
+    const response = await request(server)
       .get('/couriers')
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(200);
+
+    expect(response.body.length).toBe(2);
+    expect(response.body.map((courier) => courier.courierId)).toEqual([
+      bigCourier.courierId,
+      smallCourier.courierId,
+    ]);
     done();
   });
 
@@ -57,7 +78,8 @@ describe('GET /couriers', () => {
         .expect('Content-Type', /json/)
         .expect(200);
 
-      expect(response.body.length).toBeGreaterThan(0);
+      expect(response.body.length).toBe(1);
+      expect(response.body[0].courierId).toBe(bigCourier.courierId);
       done();
     });
 
@@ -74,10 +96,27 @@ describe('GET /couriers', () => {
   });
 });
 
-describe('PUT /couriers/:id/package', () => {
+describe('PUT /couriers/:id/packages', () => {
+  let courier;
+  let courierData = {
+    courierId: 'foo',
+    maxCapacity: 5000,
+  };
+  let newPackageData = {
+    id: 'bar',
+    volume: 200,
+  };
+
+  beforeEach(async () => {
+    courier = await Courier.create(courierData);
+  });
+
   it('should return 201 when new package has been added', async (done) => {
     await request(server)
-      .put('/couriers/foo/pacakge')
+      .put('/couriers/foo/packages')
+      .send({
+        package: newPackageData,
+      })
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(201);
@@ -85,8 +124,14 @@ describe('PUT /couriers/:id/package', () => {
   });
 
   it('should return 200 when package is already at the courier', async (done) => {
+    const { id: packageId, volume } = newPackageData;
+    await Courier.addPackage({ courier, newPackage: { packageId, volume } });
+
     await request(server)
-      .put('/couriers/foo/pacakge')
+      .put('/couriers/foo/packages')
+      .send({
+        package: newPackageData,
+      })
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(200);
@@ -95,7 +140,13 @@ describe('PUT /couriers/:id/package', () => {
 
   it('should return 422 when courier cannot carry the package', async (done) => {
     await request(server)
-      .get('/couriers')
+      .put('/couriers/foo/packages')
+      .send({
+        package: {
+          ...newPackageData,
+          volume: 6000,
+        },
+      })
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(422);
@@ -103,10 +154,25 @@ describe('PUT /couriers/:id/package', () => {
   });
 });
 
-describe('DELETE /couriers/:id/package/:package_id', () => {
+describe('DELETE /couriers/:id/packages/:package_id', () => {
+  beforeEach(async () => {
+    const courier = await Courier.create({
+      courierId: 'foo',
+      maxCapacity: 5000,
+    });
+
+    await Courier.addPackage({
+      courier,
+      newPackage: {
+        packageId: 'bar',
+        volume: 1000,
+      },
+    });
+  });
+
   it('should return 200 when package is removed from the courier', async (done) => {
     await request(server)
-      .delete('/couriers/foo/package/bar')
+      .delete('/couriers/foo/packages/bar')
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(200);
@@ -115,7 +181,7 @@ describe('DELETE /couriers/:id/package/:package_id', () => {
 
   it('should return 404 when courier does not have the package', async (done) => {
     await request(server)
-      .delete('/couriers/foo/package/baz')
+      .delete('/couriers/foo/packages/baz')
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(404);

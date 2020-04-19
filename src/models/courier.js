@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 // Create a simple User's schema
 const courierSchema = new mongoose.Schema({
-  courierId: { type: String, required: true },
+  courierId: { type: String, required: true, index: true, unique: true },
   maxCapacity: { type: Number, required: true },
   currentCapacity: {
     type: Number,
@@ -17,7 +17,9 @@ const courierSchema = new mongoose.Schema({
       message: (props) => 'Cannot carry more than maxCapacity',
     },
   },
-  packages: { type: Array, default: [] },
+  packages: [
+    { packageId: { type: String, index: true, unique: true, sparse: true }, volume: Number },
+  ],
 });
 
 const courierModel = new mongoose.model('Courier', courierSchema);

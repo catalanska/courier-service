@@ -1,5 +1,6 @@
 import express from 'express';
 import { ValidationError } from 'express-json-validator-middleware';
+import { Error as MongooseError } from 'mongoose';
 import { connect } from '../utils/db';
 import courierRouter from '../routes/courierRouter.js';
 
@@ -9,15 +10,14 @@ server.use(express.json());
 
 server.use('/couriers', courierRouter);
 
-server.use((err, _req, res, _next) => {
-  if (err instanceof ValidationError) {
-    err.status = 400;
+server.use((error, _req, res, _next) => {
+  if (error instanceof ValidationError) {
+    res.status(400).json(error);
   }
-  res.status(err.status || 500);
-  res.json({
-    status: err.status,
-    message: err.message,
-  });
+  if (error instanceof MongooseError) {
+    res.status(422).json(error);
+  }
+  res.status(500);
 });
 
 export default server;

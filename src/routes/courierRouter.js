@@ -1,5 +1,7 @@
 import express from 'express';
 import { Validator } from 'express-json-validator-middleware';
+import courierController from '../controllers/courierController';
+import packageController from '../controllers/packageController';
 
 const router = express.Router();
 
@@ -23,43 +25,25 @@ const courierSchema = {
 const validator = new Validator({ allErrors: true });
 const { validate } = validator;
 
-router.post('/', validate({ body: courierSchema }), function createCourier(req, res) {
-  const { max_capacity: maxCapacity } = req.body;
-  res.json(req.body);
-});
-
-router.get('/', function listCouriers(req, res) {
-  const couriersList = [
-    {
-      id: 'foo',
-      maxCapacity: 10000,
-      currentCapacity: 5000,
-    },
-    {
-      id: 'bar',
-      maxCapacity: 30000,
-      currentCapacity: 4000,
-    },
-  ];
-
-  const { capacity_required: capacityRequired } = req.query;
-
-  if (!capacityRequired) {
-    res.json(couriersList);
-    return;
-  }
-  let availableCouriers;
+const handleErrorAsync = (func) => async (req, res, next) => {
   try {
-    availableCouriers = couriersList.filter(({ currentCapacity }) => {
-      return currentCapacity >= capacityRequired;
-    });
+    await func(req, res, next);
   } catch (error) {
-    console.log(error);
+    next(error);
   }
+};
 
-  res.json(availableCouriers);
-});
-
-console.log(router.stack.map((layer) => layer.route));
+router.post('/', validate({ body: courierSchema }), courierController.createCourier);
+router.get('/', courierController.listCouriers);
+router.put(
+  '/:id/packages',
+  handleErrorAsync(async (req, res, next) => {
+    let result = await packageController.createPackage(req, res);
+    if (result) {
+      res.send(result);
+    }
+  })
+);
+router.delete('/:id/packages/:package_id', packageController.deletePackage);
 
 export default router;
