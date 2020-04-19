@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "babel src --out-dir dist",
-    "test": "NODE_ENV=testing jest --forceExit --detectOpenHandles --silent --passWithNoTests",
+    "test": "NODE_ENV=testing jest --forceExit --detectOpenHandles --passWithNoTests",
     "restart": "rimraf dist && npm run build && npm run start",
     "start": "node dist/index.js"
   },
@@ -14,6 +14,7 @@
   "devDependencies": {
     "eslint": "6.8.0",
     "express": "4.17.1",
+    "express-json-validator-middleware": "2.1.1",
     "husky": "4.2.5",
     "jest": "25.3.0",
     "prettier": "2.0.4",

@@ -60,7 +60,7 @@ describe('GET /couriers', () => {
   });
 
   describe('Filter by available capacity', () => {
-    it('return the list of couriers with the capacity required available', async (done) => {
+    it('return the list of couriers with the required capacity available', async (done) => {
       const response = await request(server)
         .get('/couriers?capacity_required=1000')
         .set('Accept', 'application/json')

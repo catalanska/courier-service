@@ -1,14 +1,22 @@
 import express from 'express';
+import { ValidationError } from 'express-json-validator-middleware';
+import courierRouter from '../routes/courierRouter.js';
 
 const server = express();
 
 server.use(express.json());
 
-server.use((err, _req, res, next) => {
+server.use('/couriers', courierRouter);
+
+server.use((err, _req, res, _next) => {
   if (err instanceof ValidationError) {
-    res.status(400).send(err.validationErrors.body);
-    next();
-  } else next(err);
+    err.status = 400;
+  }
+  res.status(err.status || 500);
+  res.json({
+    status: err.status,
+    message: err.message,
+  });
 });
 
 export default server;
