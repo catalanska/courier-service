@@ -2,9 +2,16 @@ import Courier from '../models/courierInterface';
 
 async function createCourier(req, res) {
   const { id: courierId, max_capacity: maxCapacity } = req.body;
-  await Courier.create({ courierId, maxCapacity });
 
-  res.status(201).json(req.body);
+  try {
+    const newCourier = await Courier.create({ courierId, maxCapacity });
+    res.status(201).json(newCourier);
+  } catch (error) {
+    if (error.message.match(/duplicate key/)) {
+      const courier = await Courier.find({ courierId });
+      res.status(200).json(courier);
+    } else throw error;
+  }
 }
 
 async function listCouriers(req, res) {

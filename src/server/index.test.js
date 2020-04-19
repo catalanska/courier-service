@@ -38,6 +38,18 @@ describe('POST /couriers', () => {
       .expect(201);
     done();
   });
+
+  it('should return 200 when booking had already been created', async (done) => {
+    const { id: courierId, max_capacity: maxCapacity } = validCourierParams;
+    await Courier.create({ courierId, maxCapacity });
+    await request(server)
+      .post('/couriers')
+      .send(validCourierParams)
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200);
+    done();
+  });
 });
 
 describe('GET /couriers', () => {
