@@ -48,3 +48,38 @@ describe('POST /couriers', () => {
     done();
   });
 });
+
+describe('GET /couriers', () => {
+  it('should return 200 with the list of couriers', async (done) => {
+    await request(server)
+      .get('/couriers')
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200);
+    done();
+  });
+
+  describe('Filter by available capacity', () => {
+    it('return the list of couriers with the capacity required available', async (done) => {
+      const response = await request(server)
+        .get('/couriers?capacity_required=1000')
+        .set('Accept', 'application/json')
+        .expect('Content-Type', /json/)
+        .expect(200);
+
+      expect(response.body.length).toBeGreaterThan(0);
+      done();
+    });
+
+    it('return an empty  list of couriers when none have the required capacity available', async (done) => {
+      const response = await request(server)
+        .get('/couriers?capacity_required=20000')
+        .set('Accept', 'application/json')
+        .expect('Content-Type', /json/)
+        .expect(200);
+
+      expect(response.body.length).toBe(0);
+      done();
+    });
+  });
+});
