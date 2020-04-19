@@ -1,5 +1,6 @@
 import express from 'express';
 import { ValidationError } from 'express-json-validator-middleware';
+import { connect } from '../utils/db';
 import courierRouter from '../routes/courierRouter.js';
 
 const server = express();

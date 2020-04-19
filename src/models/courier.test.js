@@ -2,9 +2,9 @@ import Courier from './Courier';
 
 describe('New Courier', () => {
   describe('Valid params', () => {
-    it('create & save courier successfully', async () => {
+    it('create & save courier successfully', async (done) => {
       const courier = new Courier({
-        id: 'foo',
+        courierId: 'foo',
         maxCapacity: 2000,
       });
 
@@ -12,18 +12,21 @@ describe('New Courier', () => {
 
       expect(savedCourier).toEqual(
         expect.objectContaining({
-          courierID: 'foo',
+          __v: expect.any(Number),
+          _id: expect.anything(),
+          courierId: 'foo',
           maxCapacity: 2000,
           currentCapacity: 0,
         })
       );
+      done();
     });
   });
 
   describe('Invalid params', () => {
-    it('courier cannot be created', async () => {
+    it('courier cannot be created', async (done) => {
       const courier = new Courier({
-        id: 'foo',
+        courierId: 'foo',
       });
 
       let err;
@@ -33,6 +36,7 @@ describe('New Courier', () => {
         err = error;
       }
       expect(err.errors.maxCapacity).toBeDefined();
+      done();
     });
   });
 });

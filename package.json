@@ -12,11 +12,13 @@
   "author": "Javier Jiménez",
   "license": "ISC",
   "devDependencies": {
+    "dotenv": "8.2.0",
     "eslint": "6.8.0",
     "express": "4.17.1",
     "express-json-validator-middleware": "2.1.1",
     "husky": "4.2.5",
     "jest": "25.3.0",
+    "mongoose": "5.9.9",
     "prettier": "2.0.4",
     "supertest": "4.0.2"
   },
@@ -40,6 +42,9 @@
     "testPathIgnorePatterns": [
       "dist/"
     ],
-    "restoreMocks": true
+    "restoreMocks": true,
+    "setupFilesAfterEnv": [
+      "<rootDir>/testSetup.js"
+    ]
   }
 }
