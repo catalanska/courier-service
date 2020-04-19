@@ -6,12 +6,15 @@
   "scripts": {
     "build": "babel src --out-dir dist",
     "test": "NODE_ENV=testing jest --forceExit --detectOpenHandles --passWithNoTests",
+    "test:coverage": "NODE_ENV=testing jest --detectOpenHandles --coverage",
+    "test:codecov": "./node_modules/.bin/codecov --token=588d2420-be3e-4021-b6b4-6c3eb42ac4da",
     "restart": "rimraf dist && npm run build && npm run start",
     "start": "node dist/index.js"
   },
   "author": "Javier Jiménez",
   "license": "ISC",
   "devDependencies": {
+    "codecov": "3.6.5",
     "dotenv": "8.2.0",
     "eslint": "6.8.0",
     "express": "4.17.1",
@@ -24,8 +27,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm test",
-      "pre-push": "npm test"
+      "pre-commit": "npm run test:coverage",
+      "pre-push": "npm run test:codecov"
     }
   },
   "dependencies": {
