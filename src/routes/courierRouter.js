@@ -60,4 +60,6 @@ router.get('/', function listCouriers(req, res) {
   res.json(availableCouriers);
 });
 
+console.log(router.stack.map((layer) => layer.route));
+
 export default router;

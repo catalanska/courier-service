@@ -28,23 +28,13 @@ describe('POST /couriers', () => {
     done();
   });
 
-  it('should return 200 when booking has been created', async (done) => {
+  it('should return 201 when booking has been created', async (done) => {
     await request(server)
       .post('/couriers')
       .send(validCourierParams)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
-      .expect(200);
-    done();
-  });
-
-  it('should return 500 when booking could not be created', async (done) => {
-    await request(server)
-      .post('/couriers')
-      .send(validCourierParams)
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(500);
+      .expect(201);
     done();
   });
 });
@@ -60,7 +50,7 @@ describe('GET /couriers', () => {
   });
 
   describe('Filter by available capacity', () => {
-    it('return the list of couriers with the required capacity available', async (done) => {
+    it('should return the list of couriers with the required capacity available', async (done) => {
       const response = await request(server)
         .get('/couriers?capacity_required=1000')
         .set('Accept', 'application/json')
@@ -71,7 +61,7 @@ describe('GET /couriers', () => {
       done();
     });
 
-    it('return an empty  list of couriers when none have the required capacity available', async (done) => {
+    it('should return an empty list of couriers when none have the required capacity available', async (done) => {
       const response = await request(server)
         .get('/couriers?capacity_required=20000')
         .set('Accept', 'application/json')
@@ -81,5 +71,54 @@ describe('GET /couriers', () => {
       expect(response.body.length).toBe(0);
       done();
     });
+  });
+});
+
+describe('PUT /couriers/:id/package', () => {
+  it('should return 201 when new package has been added', async (done) => {
+    await request(server)
+      .put('/couriers/foo/pacakge')
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(201);
+    done();
+  });
+
+  it('should return 200 when package is already at the courier', async (done) => {
+    await request(server)
+      .put('/couriers/foo/pacakge')
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200);
+    done();
+  });
+
+  it('should return 422 when courier cannot carry the package', async (done) => {
+    await request(server)
+      .get('/couriers')
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(422);
+    done();
+  });
+});
+
+describe('DELETE /couriers/:id/package/:package_id', () => {
+  it('should return 200 when package is removed from the courier', async (done) => {
+    await request(server)
+      .delete('/couriers/foo/package/bar')
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200);
+    done();
+  });
+
+  it('should return 404 when courier does not have the package', async (done) => {
+    await request(server)
+      .delete('/couriers/foo/package/baz')
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(404);
+    done();
   });
 });
