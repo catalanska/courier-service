@@ -13,7 +13,8 @@ const expectCourierObject = () => {
     _id: expect.anything(),
     courierId: courierId,
     maxCapacity: maxCapacity,
-    currentCapacity: maxCapacity,
+    currentCapacity: expect.any(Number),
+    packages: expect.any(Array),
   });
 };
 
@@ -75,5 +76,89 @@ describe('Find Couriers', () => {
       expect(couriers).toEqual(expect.arrayContaining([]));
       done();
     });
+  });
+});
+
+describe('Add package to a courier', () => {
+  let courier;
+
+  beforeEach(async () => {
+    courier = await Courier.create(validCourierParams);
+  });
+
+  it('stores the new package to the packages list', async (done) => {
+    const { courierId, currentCapacity } = courier;
+    const newPackage = {
+      packageId: 'bar',
+      volume: 100,
+    };
+
+    const updatedCourier = await Courier.addPackage({ courierId, newPackage });
+
+    expect(updatedCourier).toEqual(expectCourierObject());
+    expect(updatedCourier.currentCapacity).toEqual(currentCapacity - 100);
+    expect(updatedCourier.packages).toEqual(expect.arrayContaining(newPackage));
+
+    done();
+  });
+
+  it('throws an Error if the courier cannot carry the new package', async (done) => {
+    const { courierId } = courier;
+    const newPackage = {
+      packageId: 'bar',
+      volume: 500000,
+    };
+
+    let err;
+    try {
+      await Courier.addPackage({ courierId, newPackage });
+    } catch (error) {
+      err = error;
+    }
+    expect(err.errors.currentCapacity).toBeDefined();
+
+    done();
+  });
+});
+
+describe('Remove package from a courier', () => {
+  let courier;
+  let packageId;
+
+  beforeEach(async () => {
+    courier = await Courier.create(validCourierParams);
+    const newPackage = {
+      packageId: 'bar',
+      volume: 500000,
+    };
+    const existingPackage = await Courier.addPackage({ courierId: courier.courierId, newPackage });
+    packageId = existingPackage.packageId;
+  });
+
+  it('removes the package from the packages list', async (done) => {
+    const { courierId, currentCapacity } = courier;
+
+    const updatedCourier = await Courier.removePackage({ courierId, packageId });
+
+    expect(updatedCourier).toEqual(expectCourierObject());
+    expect(updatedCourier.currentCapacity).toEqual(currentCapacity + 100);
+    expect(updatedCourier.packages).toEqual(expect.not.arrayContaining(newPackage));
+
+    done();
+  });
+
+  it('throws an Error if the courier does not carry the given package', async (done) => {
+    const { courierId } = courier;
+
+    let err;
+    try {
+      updatedCourier = await Courier.removePackage({ courierId, packageId: 'baz' });
+    } catch (error) {
+      err = error;
+    }
+
+    expect(err.errors.packages).toBeDefined();
+
+    done();
   });
 });
