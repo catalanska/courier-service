@@ -1,4 +1,4 @@
-import Courier from './Courier';
+import Courier from './courierInterface';
 
 const validCourierParams = {
   courierId: 'foo',
@@ -21,9 +21,7 @@ const expectCourierObject = () => {
 describe('New Courier', () => {
   describe('Valid params', () => {
     it('create & save courier successfully', async (done) => {
-      const courier = new Courier(validCourierParams);
-
-      const savedCourier = await courier.save();
+      const savedCourier = await Courier.create(validCourierParams);
 
       expect(savedCourier).toEqual(expectCourierObject());
       done();
@@ -32,13 +30,13 @@ describe('New Courier', () => {
 
   describe('Invalid params', () => {
     it('courier cannot be created', async (done) => {
-      const courier = new Courier({
+      const invalidCourierParams = {
         courierId: 'foo',
-      });
+      };
 
       let err;
       try {
-        await courier.save();
+        await Courier.create(invalidCourierParams);
       } catch (error) {
         err = error;
       }
@@ -64,14 +62,14 @@ describe('Find Couriers', () => {
 
   describe('With currentCapacity filter', () => {
     it('returns courier if has the requested capacity', async (done) => {
-      const couriers = await Courier.find().where('currentCapacity').gte(1000);
+      const couriers = await Courier.find({ capacity: 1000 });
 
       expect(couriers).toEqual(expect.arrayContaining([expectCourierObject()]));
       done();
     });
 
     it('returns an empty list if no courier has the requested capacity', async (done) => {
-      const couriers = await Courier.find().where('currentCapacity').gte(5000);
+      const couriers = await Courier.find({ capacity: 5000 });
 
       expect(couriers).toEqual(expect.arrayContaining([]));
       done();
@@ -97,7 +95,7 @@ describe('Add package to a courier', () => {
 
     expect(updatedCourier).toEqual(expectCourierObject());
     expect(updatedCourier.currentCapacity).toEqual(currentCapacity - 100);
-    expect(updatedCourier.packages).toEqual(expect.arrayContaining(newPackage));
+    expect(updatedCourier.packages).toEqual(expect.arrayContaining([newPackage]));
 
     done();
   });
@@ -109,55 +107,41 @@ describe('Add package to a courier', () => {
       volume: 500000,
     };
 
-    let err;
-    try {
-      await Courier.addPackage({ courierId, newPackage });
-    } catch (error) {
-      err = error;
-    }
-    expect(err.errors.currentCapacity).toBeDefined();
+    await expect(Courier.addPackage({ courierId, newPackage })).rejects.toThrow();
 
     done();
   });
 });
 
 describe('Remove package from a courier', () => {
-  let courier;
-  let packageId;
+  let courierId;
+  let initialCapacity;
+  let packageId = 'bar';
+  let initialPackage;
 
   beforeEach(async () => {
-    courier = await Courier.create(validCourierParams);
-    const newPackage = {
-      packageId: 'bar',
-      volume: 500000,
+    const courier = await Courier.create(validCourierParams);
+    courierId = courier.courierId;
+    initialPackage = {
+      packageId,
+      volume: 100,
     };
-    const existingPackage = await Courier.addPackage({ courierId: courier.courierId, newPackage });
-    packageId = existingPackage.packageId;
+    const updatedCourier = await Courier.addPackage({ courierId, newPackage: initialPackage });
+    initialCapacity = updatedCourier.currentCapacity;
   });
 
   it('removes the package from the packages list', async (done) => {
-    const { courierId, currentCapacity } = courier;
-
     const updatedCourier = await Courier.removePackage({ courierId, packageId });
 
     expect(updatedCourier).toEqual(expectCourierObject());
-    expect(updatedCourier.currentCapacity).toEqual(currentCapacity + 100);
-    expect(updatedCourier.packages).toEqual(expect.not.arrayContaining(newPackage));
+    expect(updatedCourier.currentCapacity).toEqual(initialCapacity + 100);
+    expect(updatedCourier.packages).toEqual(expect.not.arrayContaining([initialPackage]));
 
     done();
   });
 
   it('throws an Error if the courier does not carry the given package', async (done) => {
-    const { courierId } = courier;
-
-    let err;
-    try {
-      updatedCourier = await Courier.removePackage({ courierId, packageId: 'baz' });
-    } catch (error) {
-      err = error;
-    }
-
-    expect(err.errors.packages).toBeDefined();
+    await expect(Courier.removePackage({ courierId, packageId: 'baz' })).rejects.toThrow();
 
     done();
   });
