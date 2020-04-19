@@ -1,0 +1,158 @@
+{
+	"info": {
+		"_postman_id": "bab43105-f128-4e58-87cf-149fb3f75980",
+		"name": "Courier API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create Courier",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f56c8482-30cb-4863-a1fb-bf6bb2a74685",
+						"exec": [
+							"pm.test(\"Response includes ID\", function() {",
+							"    var courierId = pm.response.json().courierId;",
+							"    pm.environment.set(\"courierID\", courierId);",
+							"    pm.expect(courierId);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\": \"5e9c90beb5e8f42c0a75556c\",\n\t\"max_capacity\": 2000\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:1234/couriers",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1234",
+					"path": [
+						"couriers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add package",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"package\" :{\n\t\t\"id\": \"packageID\",\n\t\t\"volume\": 200\n\t}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:1234/couriers/{{courierID}}/packages",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1234",
+					"path": [
+						"couriers",
+						"{{courierID}}",
+						"packages"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add package Copy",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"package\" :{\n\t\t\"id\": \"packageID\",\n\t\t\"volume\": 200\n\t}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:1234/couriers/{{courierID}}/packages",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1234",
+					"path": [
+						"couriers",
+						"{{courierID}}",
+						"packages"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Couriers filtered by capacity required",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:1234/couriers?capacity_required=100",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1234",
+					"path": [
+						"couriers"
+					],
+					"query": [
+						{
+							"key": "capacity_required",
+							"value": "100"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Couriers Copy",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:1234/couriers",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1234",
+					"path": [
+						"couriers"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
