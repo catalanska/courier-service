@@ -14,7 +14,6 @@ const courierSchema = new mongoose.Schema({
       validator: function (v) {
         return v <= this.maxCapacity;
       },
-      message: (props) => 'Cannot carry more than maxCapacity',
     },
   },
   packages: [

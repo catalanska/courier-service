@@ -6,7 +6,7 @@
   "scripts": {
     "build": "babel src --out-dir dist",
     "test": "NODE_ENV=testing jest --forceExit --detectOpenHandles --passWithNoTests",
-    "test:coverage": "NODE_ENV=testing jest --detectOpenHandles --coverage",
+    "test:coverage": "NODE_ENV=testing jest --coverage",
     "test:codecov": "./node_modules/.bin/codecov --token=588d2420-be3e-4021-b6b4-6c3eb42ac4da",
     "restart": "rimraf dist && npm run build && npm run start",
     "start": "node dist/index.js"
