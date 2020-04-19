@@ -93,4 +93,6 @@ Just need to type `npm test`
 - [NPM](https://www.npmjs.com/) - Dependency Management
 - [Express.js](https://expressjs.com/) - Server framework
 - [MongoDB](https://www.mongodb.com/) - Database
+- [Mongoose](https://mongoosejs.com/) - MongoDB ORM
 - [Jest](https://jestjs.io/en/) - Testing framework
+- [Babel](https://babeljs.io/) - JS compiler to enable es6 modules
