@@ -36,6 +36,7 @@ End with an example of getting some data out of the system or using it for a lit
 1. Start the server locally
 
 ```sh
+npm run build (only the first time)
 npm start
 ```
 
@@ -92,6 +93,13 @@ Just need to type `npm test`
 - [Express.js](https://expressjs.com/) - Server framework
 - [MongoDB](https://www.mongodb.com/) - Database
 - [Mongoose](https://mongoosejs.com/) - MongoDB ORM
-- [Jest](https://jestjs.io/en/) - Testing framework
 - [Babel](https://babeljs.io/) - JS compiler to enable es6 modules
 - [JSON Schema](https://json-schema.org/) - Document API and validate requests
+
+## Development tools
+
+- [Jest](https://jestjs.io/en/) - Testing framework
+- [Postman](https://www.postman.com/) - Testing & documenting API (find Postman collection used [here](https://github.com/catalanska/courier-service/tree/master/postman_collection.json))
+- [ESLint](https://eslint.org/) - JS code analysis & error fixing
+- [Prettier](https://prettier.io/) - Opinionated code formatter
+- [Husky](https://www.npmjs.com/package/husky) - Hooks to prevent bad git commit & git push
