@@ -67,13 +67,11 @@ curl --location --request GET 'http://localhost:1234/couriers?capacity_required=
 2.4 Add a package to a courier
 
 ```bash
-curl --location --request PUT 'http://localhost:1234/couriers/{{courierId}}/packages' \
+curl --location --request PUT 'http://localhost:1234/couriers/{{courierID}}/packages' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-	"package" :{
-		"id": "packageID",
-		"volume": 200
-	}
+	"id": "packageID",
+	"volume": 200
 }'
 ```
 
@@ -96,3 +94,4 @@ Just need to type `npm test`
 - [Mongoose](https://mongoosejs.com/) - MongoDB ORM
 - [Jest](https://jestjs.io/en/) - Testing framework
 - [Babel](https://babeljs.io/) - JS compiler to enable es6 modules
+- [JSON Schema](https://json-schema.org/) - Document API and validate requests

@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 
-// Create a simple User's schema
 const courierSchema = new mongoose.Schema({
   courierId: { type: String, required: true, index: true, unique: true },
   maxCapacity: { type: Number, required: true },

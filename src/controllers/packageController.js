@@ -5,9 +5,7 @@ import Courier, {
 
 async function createPackage(req, res) {
   const { id: courierId } = req.params;
-  const {
-    package: { id: packageId, volume },
-  } = req.body;
+  const { id: packageId, volume } = req.body;
 
   const courier = await Courier.find({ courierId });
 
@@ -38,7 +36,7 @@ async function deletePackage(req, res) {
     res.status(200).json(updatedCourier);
   } catch (error) {
     if (error instanceof PackageNotInCourierError) {
-      res.status(404).json(courier);
+      res.status(404).json();
     } else throw error;
   }
 }

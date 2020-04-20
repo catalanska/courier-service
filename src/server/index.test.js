@@ -127,7 +127,7 @@ describe('PUT /couriers/:id/packages', () => {
     await request(server)
       .put('/couriers/foo/packages')
       .send({
-        package: newPackageData,
+        ...newPackageData,
       })
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -142,7 +142,7 @@ describe('PUT /couriers/:id/packages', () => {
     await request(server)
       .put('/couriers/foo/packages')
       .send({
-        package: newPackageData,
+        ...newPackageData,
       })
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -154,10 +154,8 @@ describe('PUT /couriers/:id/packages', () => {
     await request(server)
       .put('/couriers/foo/packages')
       .send({
-        package: {
-          ...newPackageData,
-          volume: 6000,
-        },
+        ...newPackageData,
+        volume: 6000,
       })
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
